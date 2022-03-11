@@ -112,3 +112,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Visual Code
+.vscode
+
+# Data Files
+autoplayer_status.json

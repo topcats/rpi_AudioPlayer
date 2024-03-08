@@ -4,63 +4,42 @@
         {
             "id": 1,
             "name": "BBC Radio 2",
-            "url": "http://viper.the-owls.local/live?channel=702",
-            "image": "http://viper.the-owls.local/public/download.ashx/-5,1?7657",
-            "programme": "http://viper.the-owls.local/services/service?method=channel.listings.current&format=json&channel_id=7657"
+            "url": "http://localhost/live?channel=702&client=230",
+            "image": "http://localhost/service?method=channel.icon&channel_id=8560",
+            "programme": {
+                "nextpvr": {
+                    "hostip": "localhost",
+                    "hostport": 8866,
+                    "pin": 1234,
+                    "channel_id": 8560
+                }
+            }
         },
         {
             "id": 2,
-            "name": "BBC Radio Norfolk",
-            "url": "http://viper.the-owls.local/live?channel=719",
-            "image": "http://viper.the-owls.local/public/download.ashx/-5,1?7770",
-            "programme": "http://viper.the-owls.local/services/service?method=channel.listings.current&format=json&channel_id=7770"
+            "name": "BBC Radio 1",
+            "url": "http://localhost/live?channel=700&client=230",
+            "image": "http://localhost/service?method=channel.icon&channel_id=8558",
+            "programme": {
+                "nextpvr": {
+                    "hostip": "localhost",
+                    "hostport": 8866,
+                    "pin": 1234,
+                    "channel_id": 8558
+                }
+            }
         },
         {
             "id": 3,
             "name": "Nemesis Random",
-            "url": "upnp://http://192.168.39.21:8895/serviceControl?ObjectID=A_R",
+            "url": "upnp://http://localhost:8895/serviceControl?ObjectID=A_R",
             "image": null,
             "programme": null
-        },
-        {
-            "id": 4,
-            "name": "Magic FM",
-            "url": "http://viper.the-owls.local/live?channel=715",
-            "image": "http://viper.the-owls.local/public/download.ashx/-5,1?7775",
-            "programme": "http://viper.the-owls.local/services/service?method=channel.listings.current&format=json&channel_id=7775"
-        },
-        {
-            "id": 5,
-            "name": "Smooth Radio",
-            "url": "http://viper.the-owls.local/live?channel=718",
-            "image": "http://viper.the-owls.local/public/download.ashx/-5,1?7810",
-            "programme": "http://viper.the-owls.local/services/service?method=channel.listings.current&format=json&channel_id=7810"
-        },
-        {
-            "id": 6,
-            "name": "Greatest Hits Radio",
-            "url": "http://viper.the-owls.local/live?channel=716",
-            "image": "http://viper.the-owls.local/public/download.ashx/-5,1?7809",
-            "programme": "http://viper.the-owls.local/services/service?method=channel.listings.current&format=json&channel_id=7809"
         }
     ],
     "schedules": [
         {
             "day": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "start": "11:12",
-            "stop": "11:50",
-            "source": 3
-        },
-        {
-            "day": [
                 1,
                 2,
                 3,
@@ -68,19 +47,7 @@
                 5
             ],
             "start": "08:00",
-            "stop": "12:05",
-            "source": 1
-        },
-        {
-            "day": [
-                1,
-                2,
-                3,
-                4,
-                5
-            ],
-            "start": "14:00",
-            "stop": "22:00",
+            "stop": "09:00",
             "source": 3
         },
         {
@@ -91,25 +58,17 @@
                 4,
                 5
             ],
-            "start": "12:05",
-            "stop": "13:59",
-            "source": 3
-        },
-        {
-            "day": [
-                6
-            ],
-            "start": "08:00",
-            "stop": "22:00",
-            "source": 1
-        },
-        {
-            "day": [
-                1
-            ],
-            "start": "00:25",
-            "stop": "01:00",
+            "start": "13:00",
+            "stop": "13:45",
             "source": 6
+        },
+        {
+            "day": [
+                0
+            ],
+            "start": "10:00",
+            "stop": "12:00",
+            "source": 1
         }
     ],
     "webapi": {

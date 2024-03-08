@@ -10,9 +10,13 @@ import datetime
 import vlc
 import requests
 from webapiplayer import *
+from nextpvrinfo import *
 
 # Swap to working folder
 os.chdir('/home/pi/AudioPlayer')
+
+_fileConfig = 'autoplayer_config.json'
+_fileStatus = 'autoplayer_status.json'
 
 # VLC player Init
 args = []
@@ -29,7 +33,7 @@ def fnLoadConfig():
     """Reads the main config file into a global object"""
     global config_json
     try:
-        with open('autoplayer_config.json') as fp:
+        with open(_fileConfig) as fp:
             config_json = json.load(fp)
     except Exception as ex:
         print("fnLoadConfig() ", ex)
@@ -69,13 +73,27 @@ def fnGetSourceProgrammeTitle(sourceid):
     _Source = fnGetSource(sourceid)
     if (_Source is not None and _Source['programme'] is not None):
         try:
-            response = requests.get(_Source['programme'])
-            responseJSON = json.loads(response.text)
-            return responseJSON[0]['channel']['listings'][0]['name']
+            if 'nextpvr' in _Source['programme']:
+                # Get Existing NextPvr SID
+                pvrSid = NextpvrSid(hostip=_Source['programme']['nextpvr']['hostip'], hostport=_Source['programme']['nextpvr']['hostport'])
+                cSid = pvrSid.GetSid()
+
+                # Get NextPvr Info
+                pvrInfo = NextpvrInfo(hostip=_Source['programme']['nextpvr']['hostip'], hostport=_Source['programme']['nextpvr']['hostport'], pin=_Source['programme']['nextpvr']['pin'], sid=cSid)
+                responseJSON = pvrInfo.GetChannelCurrent(_Source['programme']['nextpvr']['channel_id'])
+                pvrInfo = None
+
+                # Save Sid
+                pvrSid.SaveSid(cSid)
+                pvrSid = None
+                return responseJSON[0]['channel']['listings'][0]['name']
+            else:
+                response = requests.get(_Source['programme'])
+                responseJSON = json.loads(response.text)
+                return responseJSON
         except Exception as ex:
             print("fnGetSourceProgrammeTitle(" + str(sourceid) + ") ", ex)
     return ""
-
 
 
 def fnConvertTime(timetext):
@@ -171,7 +189,7 @@ while currentsourceid is not None:
                     #    print("aPlayerListMedia Media     {} : {}".format(i, aPlayerListMedia.get_meta(i)))
 
     try:
-        with open('autoplayer_status.json', 'w') as fp:
+        with open(_fileStatus, 'w') as fp:
             json.dump(status_json, fp)
     except Exception as ex:
         print("subMain(Status Save) ", ex)

@@ -179,12 +179,12 @@ function musicplayer_setAction() {
         $.getJSON(sUrlPost + '?sid=' + Math.random(), function(data, status) {
             if (data != null) {
                 if (data['result'] == true) {
-                    console.log("musicplayer_setAction", dataaddr, "Action All good");
+                    console.log("musicplayer_setAction", dataaction, "Action All good");
                 } else {
-                    console.log("musicplayer_setAction", dataaddr, "action not good", data);
+                    console.log("musicplayer_setAction", dataaction, "action not good", data);
                 }
             } else {
-                console.log("musicplayer_setAction", dataaddr, "action failed", data);
+                console.log("musicplayer_setAction", dataaction, "action failed");
             }
         });
 

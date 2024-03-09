@@ -209,7 +209,7 @@ class WebHandler(BaseHTTPRequestHandler):
 
 
     def __WriteHtmlEnd(self):
-        self.wfile.write(bytes("<footer><div class=""container""><p>&copy; 2021 <a href=\"https://dev.the-owls.org\" target=\"_blank\" title=\"TheOwls Software Solutions\">TheOwls</a></p></div></footer>", "utf-8"))
+        self.wfile.write(bytes("<footer><div class=""container""><p>&copy; 2024 <a href=\"https://dev.the-owls.org\" target=\"_blank\" title=\"TheOwls Software Solutions\">TheOwls</a></p></div></footer>", "utf-8"))
         self.wfile.write(bytes("</body></html>", "utf-8"))
 
 

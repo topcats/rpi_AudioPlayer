@@ -39,7 +39,7 @@ Uses: `autoplayer_config.json`
                 "nextpvr": {
                     "hostip": "localhost",
                     "hostport": 8866,
-                    "pin": 0000,
+                    "pin": "0000",
                     "channel_id": 8560
                 }
             }

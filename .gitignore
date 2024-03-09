@@ -117,5 +117,6 @@ dmypy.json
 .vscode
 
 # Data Files
+autoplayer_config.json
 autoplayer_status.json
 nextpvrsid.json

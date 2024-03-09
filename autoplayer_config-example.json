@@ -10,7 +10,7 @@
                 "nextpvr": {
                     "hostip": "localhost",
                     "hostport": 8866,
-                    "pin": 1234,
+                    "pin": "0000",
                     "channel_id": 8560
                 }
             }
@@ -24,14 +24,14 @@
                 "nextpvr": {
                     "hostip": "localhost",
                     "hostport": 8866,
-                    "pin": 1234,
+                    "pin": "0000",
                     "channel_id": 8558
                 }
             }
         },
         {
             "id": 3,
-            "name": "Nemesis Random",
+            "name": "DLNA Random",
             "url": "upnp://http://localhost:8895/serviceControl?ObjectID=A_R",
             "image": null,
             "programme": null

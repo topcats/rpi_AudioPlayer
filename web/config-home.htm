@@ -1,0 +1,158 @@
+<div class="body-container">
+    <div class="clearfix">
+
+        <div id="pEditSource">
+            <h3>Sources</h3>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>URL</th>
+                            <th>Image</th>
+                            <th>Programme</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4"><button data-type="source" data-action="edit" data-sid="0" class="btn"><i class="imgInit imgAdd"></i></button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div id="pEditSchedule">
+            <h3>Schedules</h3>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Day(s)</th>
+                            <th>Times</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3"><button data-type="schedule" data-action="edit" data-sid="0" class="btn"><i class="imgInit imgAdd"></i></button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div>
+        <p style="text-align: right;"><a href="/" title="System Status"><i class="imgInit imgMain"></i></a></p>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        confedit_getData();
+    });
+</script>
+
+<div id="pModalBack" class="modalBack"></div>
+
+<div id="pEditScheduleEditor" style="display:none;">
+    <span class="modelClose" data-type="schedule" data-action="close">&times;</span>
+    <div>
+        <h3>Edit Schedule</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Day</th>
+                    <td>
+                        <input type="checkbox" name="pEditScheduleEditorDay" id="pEditScheduleEditorDay1" value="1" /><label for="pEditScheduleEditorDay1">Mon</label>
+                        <input type="checkbox" name="pEditScheduleEditorDay" id="pEditScheduleEditorDay2" value="2" /><label for="pEditScheduleEditorDay2">Tue</label>
+                        <input type="checkbox" name="pEditScheduleEditorDay" id="pEditScheduleEditorDay3" value="3" /><label for="pEditScheduleEditorDay3">Wed</label>
+                        <input type="checkbox" name="pEditScheduleEditorDay" id="pEditScheduleEditorDay4" value="4" /><label for="pEditScheduleEditorDay4">Thu</label><br />
+                        <input type="checkbox" name="pEditScheduleEditorDay" id="pEditScheduleEditorDay5" value="5" /><label for="pEditScheduleEditorDay5">Fri</label>
+                        <input type="checkbox" name="pEditScheduleEditorDay" id="pEditScheduleEditorDay6" value="6" /><label for="pEditScheduleEditorDay6">Sat</label>
+                        <input type="checkbox" name="pEditScheduleEditorDay" id="pEditScheduleEditorDay0" value="0" /><label for="pEditScheduleEditorDay0">Sun</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Start</th>
+                    <td><input type="time" id="pEditScheduleEditorStart" /></td>
+                </tr>
+                <tr>
+                    <th>Stop</th>
+                    <td><input type="time" id="pEditScheduleEditorStop" /></td>
+                </tr>
+                <tr>
+                    <th>Source</th>
+                    <td><select id="pEditScheduleEditorSource"></select></td>
+                </tr>
+                <tr id="pEditScheduleEditorDeleteRow">
+                    <th>Delete</th>
+                    <td><input type="checkbox" name="pEditScheduleEditorDelete" id="pEditScheduleEditorDelete" value="x" /><label for="pEditScheduleEditorDelete">Delete Item</label></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">
+                        <button type="button" id="pEditScheduleEditorSave" data-type="schedule" data-action="save">Save</button>
+                        <button type="button" id="pEditScheduleEditorClose" data-type="schedule" data-action="close">Cancel</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div id="pEditSourceEditor" style="display:none;">
+    <span class="modelClose" data-type="source" data-action="close">&times;</span>
+    <div>
+        <h3>Edit Source</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <td><input type="text" id="pEditSourceEditorName" /></td>
+                </tr>
+                <tr>
+                    <th>Type</th>
+                    <td>
+                        <input type="radio" name="pEditSourceEditorType" id="pEditSourceEditorTypeGeneric" value="generic" /><label for="pEditSourceEditorTypeGeneric">Generic</label>
+                        <input type="radio" name="pEditSourceEditorType" id="pEditSourceEditorTypeNextPvr" value="nextpvr" /><label for="pEditSourceEditorTypeNextPvr">NextPvr</label>
+                    </td>
+                </tr>
+                <tr id="pEditSourceEditorUrlRow">
+                    <th>Url</th>
+                    <td><input type="text" id="pEditSourceEditorUrl" /></td>
+                </tr>
+                <tr id="pEditSourceEditorImageRow">
+                    <th>Image</th>
+                    <td><input type="text" id="pEditSourceEditorImage" /></td>
+                </tr>
+                <tr id="pEditSourceEditorChannelIDRow">
+                    <th>Channel ID</th>
+                    <td><input type="text" id="pEditSourceEditorChannelID" /></td>
+                </tr>
+                <tr id="pEditSourceEditorProgrammeIDRow">
+                    <th>Programme ID</th>
+                    <td><input type="text" id="pEditSourceEditorProgrammeID" /></td>
+                </tr>
+                <tr id="pEditSourceEditorDeleteRow">
+                    <th>Delete</th>
+                    <td><input type="checkbox" name="pEditSourceEditorDelete" id="pEditSourceEditorDelete" value="x" /><label for="pEditSourceEditorDelete">Delete Item</label></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">
+                        <button type="button" id="pEditSourceEditorSave" data-type="source" data-action="save">Save</button>
+                        <button type="button" id="pEditSourceEditorClose" data-type="source" data-action="close">Cancel</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

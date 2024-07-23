@@ -4,6 +4,8 @@ This uses a Schedule to play different Radio stations though out the day/week.
 It can also handle a playlist of music sources (UPNP).
 Uses VLC (LIBVLC) as the player.
 
+> Now features a Web Console to control the player, and change Sources or Schedules.
+
 ## Pre-requisites
 
 ``` bash
@@ -17,7 +19,7 @@ Installed into `/home/pi/AudioPlayer`
 
 Uses: `autoplayer_config.json`
 
-### reloadtimeout
+### Config: ReloadTimeout
 
 ```json
 {
@@ -25,7 +27,27 @@ Uses: `autoplayer_config.json`
 }
 ```
 
-### sources
+### Config: Template NextPvr
+
+```json
+{    "template-nextpvr": {
+        "clientid": "123",
+        "hostip": "localhost",
+        "hostport": 8866,
+        "pin": "0000"
+    }
+}
+```
+
+### Config: Sources
+
+Can have as many Sources as wanted
+
+- **ID:** must be unique
+- **Name:** Name of Source
+- **Url:** Full path to the stream or playlist source
+- **Image:** (optional) Image Url
+- **Progamme:** (optional) NextPvr Programme information lookup
 
 ```json
 {
@@ -48,11 +70,15 @@ Uses: `autoplayer_config.json`
 }
 ```
 
-### schedules
+### Config: Schedules
 
-+ Day: uses php Day of weeks, (Sunday=0, Monday=1)
-+ Start & Stop: 24 hour clock, no seconds
-+ Source: references the source listed
+Can have as many Schedules as needed.  
+The system will start at the top and pick the first schedule that fits.  
+Therefore it is possible to have overlapping schedules to prevent multiples.  
+
+- **Day:** uses php Day of weeks, (Sunday=0, Monday=1)
+- **Start & Stop:** 24 hour clock, no seconds
+- **Source:** references the source listed
 
 ```json
 {
@@ -75,7 +101,7 @@ Uses: `autoplayer_config.json`
 }
 ```
 
-### webapi
+### Config: webapi
 
 ```json
 {

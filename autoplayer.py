@@ -81,6 +81,7 @@ def fnGetSourceProgrammeTitle(sourceid):
                 # Get NextPvr Info
                 pvrInfo = NextpvrInfo(hostip=_Source['programme']['nextpvr']['hostip'], hostport=_Source['programme']['nextpvr']['hostport'], pin=_Source['programme']['nextpvr']['pin'], sid=cSid)
                 responseJSON = pvrInfo.GetChannelCurrent(_Source['programme']['nextpvr']['channel_id'])
+                cSid = pvrInfo.sid
                 pvrInfo = None
 
                 # Save Sid
@@ -107,7 +108,10 @@ def fnPlayerCallback(action):
     print("fnPlayerCallback: " + action)
     global aPlayer
     global aPlayerList
-    if (action == "STOP"):
+    if (action == "RELOADCONFIG"):
+        print('{} Reload Config Triggered'.format(time.strftime('%H:%M')))
+        fnLoadConfig()
+    elif (action == "STOP"):
         if aPlayer:
             if aPlayer.get_media() and aPlayer.is_playing():
                 aPlayer.stop()
@@ -205,7 +209,7 @@ while currentsourceid is not None:
         if aPlayerList:
             if aPlayerList.is_playing():
                 aPlayerList.stop()
-        
+
         currentsourceid = newsourceid
         newsource = fnGetSource(newsourceid)
         if newsource is not None:

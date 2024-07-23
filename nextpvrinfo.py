@@ -5,7 +5,6 @@ import os
 
 class NextpvrInfo():
     """Get Information From NextPvr"""
-    sid = None
 
     def __init__(self, hostip=None, hostport=None, pin=None, sid=None):
         """ Nextpvr Info Grabber
@@ -17,9 +16,18 @@ class NextpvrInfo():
         self._hostip = hostip
         self._hostport = hostport
         self._pin = pin
-        self.sid = sid
+        self._sid = sid
 
-    
+
+    @property
+    def sid(self):
+        """ Grab back sid
+
+        :rtype: string
+        """
+        return self._sid
+
+
     def __hashMe (self, thedata):
         import hashlib
         h = hashlib.md5()
@@ -29,14 +37,14 @@ class NextpvrInfo():
 
     def __doRequest5(self, method=None):
         """ Do Main Request
-        
+
         :param method: Service Method Command and any extra params
         """
         retval = False
         getResult = None
         url = "http://" + self._hostip + ":" + str(self._hostport) + '/service?method=' + method
-        if (not 'session.initiate' in method and self.sid != None):
-            url += '&sid=' + self.sid
+        if (not 'session.initiate' in method and self._sid != None):
+            url += '&sid=' + self._sid
         try:
             request = Request(url, headers={"Accept" : "application/json"})#, 'User-Agent': 'getsid', 'host': 'localhost'})
             json_file = urlopen(request)
@@ -53,28 +61,28 @@ class NextpvrInfo():
         method = 'session.initiate&ver=1.0&device=getsid'
         ret, keys = self.__doRequest5(method)
         if ret == True:
-            self.sid =  keys['sid']
+            self._sid =  keys['sid']
             salt = keys['salt']
             hm = self.__hashMe(str(str(self._pin).zfill(4)))
             method = 'session.login&md5=' + self.__hashMe(':' + hm + ':' + salt)
             ret, login = self.__doRequest5(method)
             if ret and login['stat'] == 'ok':
-                self.sid = login['sid']
+                self._sid = login['sid']
             else:
-                self.sid = None
+                self._sid = None
                 print ('NextpvrInfo.__sidLogin5', "Fail 2")
         else:
-            self.sid = None
+            self._sid = None
             print ('NextpvrInfo.__sidLogin5', "Fail")
 
 
     def GetChannelCurrent(self, channel_id=None):
         """ Get Current Information for Channel
-        
+
         :param channel_id: Channel ID (not number)
         """
         # Get Login SID
-        if (self.sid == None):
+        if (self._sid == None):
             self.__sidLogin5()
 
         # Do Lookup
@@ -106,22 +114,22 @@ class NextpvrSid():
 
     def __getIdentifier(self):
         """ Create a server Identifier
-        
-        :return: String of the host URI
+
+        :return: String of the host URI and port number
         """
         return str(self._hostip) + ':' + str(self._hostport)
 
 
     def GetSid(self):
         """ Get SID for Host
-        
+
         :return: SID if found else None
         """
         if (os.path.exists(self._fileNextPvr)):
             try:
                 with open(self._fileNextPvr) as fp:
                     nextpvr_json = json.load(fp)
-                
+
                 if (nextpvr_json is not None and nextpvr_json[self.__getIdentifier()] is not None):
                     return nextpvr_json[self.__getIdentifier()]
                 else:
@@ -135,8 +143,8 @@ class NextpvrSid():
 
 
     def SaveSid(self, sid=None):
-        """ Save SID for Host in central
-        
+        """ Save SID for Host in central file
+
         :return: True if all good
         """
         # Load Existing
@@ -148,7 +156,7 @@ class NextpvrSid():
 
             except Exception as ex:
                 print("NextpvrSid.SaveSid(load)", ex)
-                
+
         if (nextpvr_json is None):
             nextpvr_json = {}
 
@@ -163,5 +171,4 @@ class NextpvrSid():
         except Exception as ex:
             print("NextpvrSid.SaveSid(save)", ex)
             return False
-
 

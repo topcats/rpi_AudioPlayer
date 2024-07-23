@@ -1,10 +1,16 @@
 {
     "reloadtimeout": 3000,
+    "template-nextpvr": {
+        "clientid": "123",
+        "hostip": "localhost",
+        "hostport": 8866,
+        "pin": "0000"
+    },
     "sources": [
         {
             "id": 1,
             "name": "BBC Radio 2",
-            "url": "http://localhost/live?channel=702&client=230",
+            "url": "http://localhost/live?channel=702&client=123",
             "image": "http://localhost/service?method=channel.icon&channel_id=8560",
             "programme": {
                 "nextpvr": {
@@ -18,7 +24,7 @@
         {
             "id": 2,
             "name": "BBC Radio 1",
-            "url": "http://localhost/live?channel=700&client=230",
+            "url": "http://localhost/live?channel=700&client=123",
             "image": "http://localhost/service?method=channel.icon&channel_id=8558",
             "programme": {
                 "nextpvr": {

@@ -52,7 +52,10 @@ class NextpvrInfo():
             json_file.close()
             retval = True
         except Exception as e:
-            print('NextpvrInfo.__doRequest5', str(e))
+            if (str(e).startswith("HTTP Error 500")):
+                getResult = "500"
+            else:
+                print('NextpvrInfo.__doRequest5', str(e))
 
         return retval, getResult
 
@@ -81,6 +84,7 @@ class NextpvrInfo():
 
         :param channel_id: Channel ID (not number)
         """
+
         # Get Login SID
         if (self._sid == None):
             self.__sidLogin5()
@@ -88,6 +92,11 @@ class NextpvrInfo():
         # Do Lookup
         method = 'channel.listings.current&format=json&channel_id=' + str(channel_id)
         ret, answer = self.__doRequest5(method)
+
+        # Hmm if sid failed
+        if (ret == False and answer == "500"):
+            self.__sidLogin5()
+            ret, answer = self.__doRequest5(method)
 
         # Return results if good
         if (ret == True):

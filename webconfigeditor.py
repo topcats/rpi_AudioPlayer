@@ -92,7 +92,7 @@ class WebConfigEditor():
                 "day": newItemDays,
                 "start": json_post_data['Start'],
                 "stop": json_post_data['Stop'],
-                "source": json_post_data['Source']
+                "source": int(json_post_data['Source'])
                 }
             json_config['schedules'].append(newItem)
             retMessage = "Schedule Added"
@@ -103,7 +103,7 @@ class WebConfigEditor():
             json_config['schedules'][json_post_data_sid]['day'] = newItemDays
             json_config['schedules'][json_post_data_sid]['start'] = json_post_data['Start']
             json_config['schedules'][json_post_data_sid]['stop'] = json_post_data['Stop']
-            json_config['schedules'][json_post_data_sid]['source'] = json_post_data['Source']
+            json_config['schedules'][json_post_data_sid]['source'] = int(json_post_data['Source'])
             retMessage = "Schedule Item Updated"
 
         with open(_fileConfig, 'w') as fp:

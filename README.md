@@ -1,10 +1,14 @@
 # TheOwls Python Radio Audio Player
 
-This uses a Schedule to play different Radio stations though out the day/week.
-It can also handle a playlist of music sources (UPNP).
+This uses a Schedule to play different Radio stations though out the day/week.  
+It can also handle a playlist of music sources (UPNP).  
 Uses VLC (LIBVLC) as the player.
 
-> Now features a Web Console to control the player, and change Sources or Schedules.
+> Now features a Web Console;
+>
+> - to control the player
+> - play alternate sources
+> - change Sources or Schedules.
 
 ## Pre-requisites
 
@@ -111,6 +115,57 @@ Therefore it is possible to have overlapping schedules to prevent multiples.
     }
 }
 ```
+
+### Config: Manual
+
+It is possible to manually control the system.
+
+```json
+{
+    "manual": {
+        "mode": 0,
+        "schedule": 1,
+        "day": 1,
+        "url": "Url to play",
+        "title": "Title of what is playing",
+        "image": "Url of image playing",
+        "source": 1
+    }
+}
+```
+
+#### Manual Modes
+
+- 0 (null) : (Default) Normal running as per schedule
+- 1 : Full stop; play nothing, schedule paused
+- 2 : Stop; play nothing, resume at next schedule change
+- 3 : Stop; play nothing, resume at next day
+- 11 : Play Source; schedule paused
+- 12 : Play Source; resume at next schedule change
+- 13 : Play Source; resume at next day
+- 21 : Play Url; schedule paused
+- 22 : Play Url; resume at next schedule change
+- 23 : Play Url; resume at next day
+
+#### Schedule
+
+Has the current schedule, that should be playing, set when the mode is changed.
+
+#### Day
+
+Has the current day, set when the mode is changed.
+
+#### Url
+
+Url to play
+
+#### Title
+
+Title for the Url
+
+#### Source
+
+Source ID to play
 
 ## SSL Host Certificate setup
 

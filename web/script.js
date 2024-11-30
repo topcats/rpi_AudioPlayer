@@ -3,13 +3,16 @@ var timStatus_getData;
 function status_getData() {
     try {
         $.getJSON("/status", function (data) {
+            localStorage.setItem("status", JSON.stringify(data));
             status_getSuccess(data);
         }).fail(function (d) {
             console.log('status_getData fail');
+            localStorage.removeItem("status");
             status_getSuccess(null);
         });
     } catch (e) {
         console.log('status_getData failure');
+        localStorage.removeItem("status");
         status_getSuccess(null);
     }
 }
@@ -19,65 +22,79 @@ var sImageHTML = '';
 function status_getSuccess(result) {
     try {
         if (result != null) {
-            if (result['aPlayer'] != null && result['aPlayer'] == 'State.Playing') {
-                $('#sStatus').text('Playing');
+            if (result['mode'] == 1 || result['mode'] == 2 || result['mode'] == 3) {
+                if (result['mode'] == 1) $('#sStatus').text('Manual: Full Stop');
+                if (result['mode'] == 2) $('#sStatus').text('Manual: Stop; Resume next schedule');
+                if (result['mode'] == 3) $('#sStatus').text('Manual: Stop; Resume next day');
                 $('#pStatus-Play').hide();
-                $('#pStatus-Stop').show();
-                $('#pStatus-Next').hide();
-            } else if (result['aPlayerList'] != null && result['aPlayerList'] == 'State.Playing') {
-                $('#sStatus').text('Playing List');
-                $('#pStatus-Play').hide();
-                $('#pStatus-Stop').show();
-                $('#pStatus-Next').show();
-            } else {
-                $('#sStatus').text('Stopped');
-                $('#pStatus-Play').show();
                 $('#pStatus-Stop').hide();
                 $('#pStatus-Next').hide();
-            }
-            if (result.source != null && result.source.name != null) {
-                $('#sSource').text(result.source.name);
-            } else {
                 $('#sSource').text('');
-            }
-            var audiotitle = '';
-            if (result.title != null && result.title != '' && result.mrl != null) {
-                if (!result.title.startsWith(result.mrl.substr(result.mrl.lastIndexOf("/") + 1))) {
-                    audiotitle = result.title;
-                }
-            }
-            if (audiotitle == '') {
-                if (result.source != null && result.source.name != null) {
-                    audiotitle = result.source.name;
-                }
-            }
-            $('#sTitle').html(audiotitle);
-
-            if (result.subtitle != null) {
-                $('#sProgramme').text(result.subtitle);
-            } else {
                 $('#sProgramme').text('');
-            }
-
-            var audioimage = '';
-            if (result.image != null) {
-                audioimage = '<img src="' + result.image + '">';
-            } else if (result.source != null && result.source.image != null) {
-                audioimage = '<img src="' + result.source.image + '">';
+                $('#sTitle').text('');
+                $('#sImage').text('');
+                $('#sPlayTime').text('');
             } else {
-                audioimage = '';
-            }
-            if (sImageHTML != audioimage) {
-                sImageHTML = audioimage;
-                $('#sImage').html(sImageHTML);
-            }
+                if (result['aPlayer'] != null && result['aPlayer'] == 'State.Playing') {
+                    $('#sStatus').text('Playing');
+                    $('#pStatus-Play').hide();
+                    $('#pStatus-Stop').show();
+                    $('#pStatus-Next').hide();
+                } else if (result['aPlayerList'] != null && result['aPlayerList'] == 'State.Playing') {
+                    $('#sStatus').text('Playing List');
+                    $('#pStatus-Play').hide();
+                    $('#pStatus-Stop').show();
+                    $('#pStatus-Next').show();
+                } else {
+                    $('#sStatus').text('Stopped');
+                    $('#pStatus-Play').show();
+                    $('#pStatus-Stop').hide();
+                    $('#pStatus-Next').hide();
+                }
+                if (result.source != null && result.source.name != null) {
+                    $('#sSource').text(result.source.name);
+                } else {
+                    $('#sSource').text('');
+                }
+                var audiotitle = '';
+                if (result.title != null && result.title != '' && result.mrl != null) {
+                    if (!result.title.startsWith(result.mrl.substr(result.mrl.lastIndexOf("/") + 1))) {
+                        audiotitle = result.title;
+                    }
+                }
+                if (audiotitle == '') {
+                    if (result.source != null && result.source.name != null) {
+                        audiotitle = result.source.name;
+                    }
+                }
+                $('#sTitle').html(audiotitle);
 
-            if (result['playlength'] != null && result['playlength'] > 0) {
-                $('#sPlayTime').html('<span style="font-size:smaller;">' + formatNumber(result['playtime']) + '</span> / ' + formatNumber(result['playlength']));
-            } else if (result['playtime'] != null && result['playtime'] > 0) {
-                $('#sPlayTime').html(formatNumber(result['playtime']));
-            } else {
-                $('#sPlayTime').html('');
+                if (result.subtitle != null) {
+                    $('#sProgramme').text(result.subtitle);
+                } else {
+                    $('#sProgramme').text('');
+                }
+
+                var audioimage = '';
+                if (result.image != null) {
+                    audioimage = '<img src="' + result.image + '">';
+                } else if (result.source != null && result.source.image != null) {
+                    audioimage = '<img src="' + result.source.image + '">';
+                } else {
+                    audioimage = '';
+                }
+                if (sImageHTML != audioimage) {
+                    sImageHTML = audioimage;
+                    $('#sImage').html(sImageHTML);
+                }
+
+                if (result['playlength'] != null && result['playlength'] > 0) {
+                    $('#sPlayTime').html('<span style="font-size:smaller;">' + formatNumber(result['playtime']) + '</span> / ' + formatNumber(result['playlength']));
+                } else if (result['playtime'] != null && result['playtime'] > 0) {
+                    $('#sPlayTime').html(formatNumber(result['playtime']));
+                } else {
+                    $('#sPlayTime').html('');
+                }
             }
             $('#sControls').show();
 
@@ -126,32 +143,40 @@ var timConfig_getData;
 function config_getData() {
     try {
         $.getJSON("/config", function (data) {
+            localStorage.setItem("config", JSON.stringify(data));
             config_getSuccess(data);
         }).fail(function (d) {
             console.log('config_getData fail');
+            localStorage.removeItem("config");
             config_getSuccess(null);
         });
     } catch (e) {
         console.log('config_getData failure');
+        localStorage.removeItem("config");
         config_getSuccess(null);
     }
 }
 
 function config_getSuccess(result) {
     try {
-        $('#pSources table tbody tr').slice(1).remove();
+        $('#pSources table tbody tr').remove();
         if (result != null) {
             if (result.sources != null && result.sources.length > 0) {
                 for (var i in result['sources']) {
+                    var rowText = "<tr data-sid=\"" + result['sources'][i]['id'] + "\"><th>" + result['sources'][i]['name'] + "</th><td>";
                     if (result['sources'][i]['image'] != null) {
-                        $('#pSources table tbody').append("<tr data-sid=\"" + result['sources'][i]['id'] + "\"><th>" + result['sources'][i]['name'] + "</th><td><img src=\"" + result['sources'][i]['image'] + "\"></td><td class=\"playbackControls\"><span id=\"pSources-Play\" data-action=\"playsource\" title=\"Play Source\"></span></td></tr>");
+                        rowText = rowText + "<img src=\"" + result['sources'][i]['image'] + "\">";
                     } else {
-                        $('#pSources table tbody').append("<tr data-sid=\"" + result['sources'][i]['id'] + "\"><th>" + result['sources'][i]['name'] + "</th><td>&nbsp;</td><td class=\"playbackControls\"><span id=\"pSources-Play\" data-action=\"playsource\" title=\"Play Source\"></span></td></tr>");
+                        rowText = rowText + "&nbsp;";
                     }
+                    rowText = rowText + "</td><td class=\"playbackControls\"><span class=\"Sources-Play\" data-type=\"manualplay\" data-action=\"source-play\" data-sid=\"" + result['sources'][i]['id'] + "\" title=\"Play Source\"></span></td></tr>";
+                    $('#pSources table tbody').append(rowText);
                 }
             }
         }
         $("span[data-action]").off("click").click(musicplayer_setAction);
+        $("button[data-action]").off("click").click(musicplayer_setAction);
+
     } catch (e) {
         $('#pSources table tbody').empty();
     }
@@ -162,34 +187,174 @@ function musicplayer_setAction() {
 
     //Fire Action
     if (this) {
+        var datatype = $(this).data('type');
         var dataaction = $(this).data('action');
         var datasid = $(this).closest("tr").data('sid');
-        console.log('musicplayer_setAction', dataaction, datasid);
+        console.log('musicplayer_setAction', datatype, dataaction, datasid);
 
-        var sUrlPost = "/player/";
-        if (dataaction == 'statusnext')
-            sUrlPost += 'next';
-        else if (dataaction == 'statusstop')
-            sUrlPost += 'stop';
-        else if (dataaction == 'statusplay')
-            sUrlPost += 'play';
-        else if (dataaction == 'playsource')
-            sUrlPost += 'play/' + datasid;
+        if (datatype == 'manualcontrol') {
+            var dataSource = $("#pPlayManualSource").val();
+            var dataOtherUrl = $("#pPlayManualOtherUrl").val();
+            var dataOtherTitle = $("#pPlayManualOtherTitle").val();
+            var dataOtherImage = $("#pPlayManualOtherImage").val();
 
-        $.getJSON(sUrlPost + '?sid=' + Math.random(), function (data, status) {
-            if (data != null) {
-                if (data['result'] == true) {
-                    console.log("musicplayer_setAction", dataaction, "Action All good");
+            if (dataaction == 'manualopen')
+                musicplayer_showmanual();
+            else if (dataaction == 'close')
+                musicplayer_closemanual();
+            else if (dataaction == 'normal')
+                musicplayer_doAction(0, null, null, null, null);
+            else if (dataaction == 'fullstop')
+                musicplayer_doAction(1, null, null, null, null);
+            else if (dataaction == 'pauseschedule')
+                musicplayer_doAction(2, null, null, null, null);
+            else if (dataaction == 'pausesday')
+                musicplayer_doAction(3, null, null, null, null);
+            else if (dataaction == 'source-stop')
+                musicplayer_doAction(11, dataSource, null, null, null);
+            else if (dataaction == 'source-schedule')
+                musicplayer_doAction(12, dataSource, null, null, null);
+            else if (dataaction == 'source-day')
+                musicplayer_doAction(13, dataSource, null, null, null);
+            else if (dataaction == 'other-stop')
+                musicplayer_doAction(21, null, dataOtherUrl, dataOtherTitle, dataOtherImage);
+            else if (dataaction == 'other-schedule')
+                musicplayer_doAction(22, null, dataOtherUrl, dataOtherTitle, dataOtherImage);
+            else if (dataaction == 'other-day')
+                musicplayer_doAction(23, null, dataOtherUrl, dataOtherTitle, dataOtherImage);
+        } else if (datatype == 'manualplay') {
+            datasid = $(this).data('sid');
+            if (dataaction == 'source-play')
+                musicplayer_doAction(22, datasid, null, null, null);
+        } else {
+            var sUrlPost = "/player/";
+            if (dataaction == 'statusnext')
+                sUrlPost += 'next';
+            else if (dataaction == 'statusstop')
+                sUrlPost += 'stop';
+            else if (dataaction == 'statusplay')
+                sUrlPost += 'play';
+            else if (dataaction == 'playsource')
+                sUrlPost += 'play/' + datasid;
+
+            $.getJSON(sUrlPost + '?sid=' + Math.random(), function (data, status) {
+                if (data != null) {
+                    if (data['result'] == true) {
+                        console.log("musicplayer_setAction", dataaction, "Action All good");
+                    } else {
+                        console.log("musicplayer_setAction", dataaction, "action not good", data);
+                    }
                 } else {
-                    console.log("musicplayer_setAction", dataaction, "action not good", data);
+                    console.log("musicplayer_setAction", dataaction, "action failed");
                 }
-            } else {
-                console.log("musicplayer_setAction", dataaction, "action failed");
-            }
-        });
-
+            });
+        }
     }
 }
+
+
+function musicplayer_doAction(modeID, sourceID, otherUrl, otherTitle, otherImage) {
+    var dataObject = { 'mode': modeID, 'source': sourceID, 'url': otherUrl, 'title': otherTitle, 'image': otherImage };
+
+    // Post Data
+    $.ajax({
+        url: '/control',
+        type: 'put',
+        data: JSON.stringify(dataObject),
+        headers: {
+            "Content-Type": "application/json"
+        },
+        dataType: 'json'
+    }).done(function (data) {
+        if (data['action'] == true) {
+            musicplayer_closemanual();
+            config_getData();
+        } else {
+            window.alert("Control Action Issue\n" + data['message']);
+            console.log("Sample of data:", data);
+        }
+    }).fail(function (d) {
+        console.log('musicplayer_doAction fail');
+        window.alert("Control Action Failed\n" + d);
+    });
+
+}
+
+function musicplayer_showmanual() {
+    $("#pModalBack").fadeIn();
+
+    var status = JSON.parse(localStorage.getItem("status"));
+    var config = JSON.parse(localStorage.getItem("config"));
+    var manualsource = '';
+    var manualOtherUrl = '';
+    var manualOtherTitle = '';
+    var manualOtherImage = '';
+    
+    $("#manualmodetext").text("Unknown");
+    $("button[data-action='normal']").show();
+    $("button[data-action='fullstop']").show();
+    $("button[data-action='pauseschedule']").show();
+    $("button[data-action='pausesday']").show();
+    if (status['mode'] == 0) {
+        $("button[data-action='normal']").hide();
+        $("#manualmodetext").text("Normal running");
+    } else if (status['mode'] == 1) {
+        $("#manualmodetext").text("Full Stop");
+        $("button[data-action='fullstop']").hide();
+        $("button[data-action='pauseschedule']").hide();
+        $("button[data-action='pausesday']").hide();
+    } else if (status['mode'] == 2 || status['mode'] == 3) {
+        if (status['mode'] == 2)
+            $("#manualmodetext").text("Stop, Resume next schedule");
+        if (status['mode'] == 3)
+            $("#manualmodetext").text("Stop, Resume next day");
+        $("button[data-action='pauseschedule']").hide();
+        $("button[data-action='pausesday']").hide();
+    } else if (status['mode'] == 11 || status['mode'] == 12 || status['mode'] == 13) {
+        if (status['mode'] == 11)
+            $("#manualmodetext").text("Play Source, Schedule paused");
+        if (status['mode'] == 12)
+            $("#manualmodetext").text("Play Source, Resume next schedule");
+        if (status['mode'] == 13)
+            $("#manualmodetext").text("Play Source, Resume next day");
+        manualsource = config['manual']['source'];
+    } else if (status['mode'] == 21 || status['mode'] == 22 || status['mode'] == 23) {
+        if (status['mode'] == 21)
+            $("#manualmodetext").text("Play Other, Schedule paused");
+        if (status['mode'] == 22)
+            $("#manualmodetext").text("Play Other, Resume next schedule");
+        if (status['mode'] == 23)
+            $("#manualmodetext").text("Play Other, Resume next day");
+        manualOtherUrl = config['manual']['url'];
+        manualOtherTitle = config['manual']['title'];
+        manualOtherImage = config['manual']['image'];
+    }
+
+    // populate dropdown
+    $('#pPlayManualSource')
+        .find('option')
+        .remove()
+        .end()
+        .append('<option value=""> - Select Source - </option>');
+    for (var i in config['sources']) {
+        $('#pPlayManualSource').append('<option value="' + config['sources'][i]['id'] + '"'+( config['sources'][i]['id'] == manualsource ? " selected" : "")+'>' + config['sources'][i]['name'] + '</option>');
+    }
+    $("#pPlayManualOtherUrl").val(manualOtherUrl);
+    $("#pPlayManualOtherTitle").val(manualOtherTitle);
+    $("#pPlayManualOtherImage").val(manualOtherImage);
+
+    $("#pPlayManual").show();
+    confedit_modalCenter("pPlayManual");
+    $("span[data-action]").off("click").click(musicplayer_setAction);
+    $("button[data-action]").off("click").click(musicplayer_setAction);
+
+}
+
+function musicplayer_closemanual() {
+    $("#pPlayManual").hide();
+    $("#pModalBack").fadeOut();
+}
+
 
 // Config Editor
 

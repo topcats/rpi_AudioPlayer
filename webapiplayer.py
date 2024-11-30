@@ -5,6 +5,13 @@ from threading import Thread
 import json
 from webconfigeditor import *
 from urllib import parse
+import autoplayerfunc
+
+
+_fileConfig = autoplayerfunc.FileConfig
+"""Config File filename link"""
+_fileStatus = autoplayerfunc.FileStatus
+"""Status File filename link"""
 
 
 class WebHandler(BaseHTTPRequestHandler):
@@ -57,6 +64,12 @@ class WebHandler(BaseHTTPRequestHandler):
 
         if selfpath.startswith('/configeditor'):
             self.__Post_ConfigEditor()
+        elif selfpath.startswith('/control'):
+            content_length = int(self.headers["Content-Length"])
+            post_data = self.rfile.read(content_length)
+            json_data = json.loads(post_data)
+            self.__Post_Control(json_data)
+
 
     def do_PUT(self):
         self.do_POST()
@@ -66,8 +79,9 @@ class WebHandler(BaseHTTPRequestHandler):
 
 
     def __Get_Status(self):
+        global _fileStatus
         try:
-            with open('autoplayer_status.json') as fp:
+            with open(_fileStatus) as fp:
                 returnjson = json.load(fp)
         except Exception as ex:
             print("WebHandler.__Get_Status(Load JSON) ", ex)
@@ -80,8 +94,9 @@ class WebHandler(BaseHTTPRequestHandler):
 
 
     def __Get_Config(self):
+        global _fileConfig
         try:
-            with open('autoplayer_config.json') as fp:
+            with open(_fileConfig) as fp:
                 returnjson = json.load(fp)
         except Exception as ex:
             print("WebHandler.__Get_Config(Load JSON) ", ex)
@@ -129,10 +144,77 @@ class WebHandler(BaseHTTPRequestHandler):
         self.wfile.write(bytes(json.dumps(returnjson), "utf-8"))
         self.ActionCallback(sid)
 
+    def __Post_Control(self, json_post_data):
+        global _fileConfig
+        self.send_response(200)
+        self.__WriteSharedHeaders(False)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        retValue = False
+        retMessage = 'Nothing Done'
+
+        with open(_fileConfig) as fp:
+            json_config = json.load(fp)
+
+        if not 'manual' in json_config:
+            json_config['manual'] = {}
+        if not 'mode' in json_config['manual']:
+            json_config['manual']['mode'] = 0
+        if not 'source' in json_config['manual']:
+            json_config['manual']['source'] = 0
+        if not 'url' in json_config['manual']:
+            json_config['manual']['url'] = None
+        if json_post_data['source'] == '':
+            json_post_data['source'] = None
+
+        if json_post_data['source'] is None or json_config['manual']['source'] != int(json_post_data['source']):
+            if json_post_data['source'] is None:
+                json_config['manual']['source'] = None
+            else:
+                json_config['manual']['source'] = int(json_post_data['source'])
+            retMessage = 'Source Updated'
+            retValue = True
+
+        if json_post_data['url'] is None or json_config['manual']['url'] != json_post_data['url']:
+            if json_post_data['url'] is None:
+                json_config['manual']['url'] = None
+            else:
+                json_config['manual']['url'] = json_post_data['url']
+            json_config['manual']['title'] = json_post_data['title']
+            json_config['manual']['image'] = json_post_data['image']
+            retMessage = 'Other Updated'
+            retValue = True
+
+        if json_config['manual']['mode'] != int(json_post_data['mode']):
+            json_config['manual']['mode'] = int(json_post_data['mode'])
+            if retValue:
+                retMessage = retMessage + ', Mode Changed'
+            else:
+                retMessage = 'Mode Changed'
+                retValue = True
+        
+        if retValue:
+            json_config['manual']['day'] = autoplayerfunc.fnGetCurrentWeekday()
+            json_config['manual']['schedule'] = autoplayerfunc.fnGetCurrentSchedule()
+
+        with open(_fileConfig, 'w') as fp:
+            json.dump(json_config, fp, indent=4)
+
+        returnjson = { "dt": int(time.time()), "action": retValue, "message": retMessage, "return": True}
+        self.wfile.write(bytes(json.dumps(returnjson), "utf-8"))
+
+        if retValue:
+            self.ActionCallback('RELOADCONFIG')
+
+            if json_config['manual']['mode'] == 1 or json_config['manual']['mode'] == 2 or json_config['manual']['mode'] == 3:
+                self.ActionCallback('STOP')
+            #if json_config['manual']['mode'] == 11 or json_config['manual']['mode'] == 12 or json_config['manual']['mode'] == 13 or json_config['manual']['mode'] == 21 or json_config['manual']['mode'] == 22 or json_config['manual']['mode'] == 23:
+            #    self.ActionCallback('PLAY')
+
 
     def __Get_Favicon(self):
         self.send_response(200)
-        self.send_header("Cache-Control", "max-age=432,000")
+        self.send_header("Cache-Control", "max-age=432000")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Content-type", "image/x-icon")
         self.end_headers()
@@ -142,7 +224,7 @@ class WebHandler(BaseHTTPRequestHandler):
 
     def __Get_JQuery(self):
         self.send_response(200)
-        self.send_header("Cache-Control", "max-age=432,000")
+        self.send_header("Cache-Control", "max-age=432000")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Content-type", "application/javascript")
         self.end_headers()

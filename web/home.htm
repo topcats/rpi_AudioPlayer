@@ -37,7 +37,13 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan=2 id="sControls" class="playbackControls" style="display: none;"><span id="pStatus-Play" data-action="statusplay" title="Play"></span><span id="pStatus-Stop" data-action="statusstop" title="Stop"></span><span id="pStatus-Next" data-action="statusnext" title="Next Track"></span></td>
+                            <td colspan=2 id="sControls" class="playbackControls" style="display: none;">
+                                <span id="pStatus-Play" data-action="statusplay" title="Play"></span>
+                                <span id="pStatus-Stop" data-action="statusstop" title="Stop"></span>
+                                <span id="pStatus-Next" data-action="statusnext" title="Next Track"></span>
+
+                                <button type="button" data-type="manualcontrol" data-action="manualopen" class="btn" title="Open Manual Controls"><i class="imgInit imgManualControlOpen"></i></button>
+                            </td>
                         </tr>
                     </tfoot>
                 </table>
@@ -62,13 +68,56 @@
         <p style="text-align: right;"><a href="/configeditor" title="Configuration Editor"><i class="imgInit imgConfigEditor"></i></a></p>
     </div>
 </div>
+
+<div id="pModalBack" class="modalBack"></div>
+
+<div id="pPlayManual" style="display:none;">
+    <span class="modelClose" data-type="manualcontrol" data-action="close">&times;</span>
+    <div>
+        <h3>Manual Override</h3>
+        <div class="currently"><p><b>Currently:</b> <span id="manualmodetext"></span></p></div>
+        <div class="playmanual">
+            <div>
+                <div><button type="button" data-type="manualcontrol" data-action="normal" class="btn" title="Resume Normal running as per schedule"><i class="imgInit imgPlay"></i> Normal Running</button></div>
+                <div><button type="button" data-type="manualcontrol" data-action="fullstop" class="btn" title="Full Stop: Schedule paused, will not do anything until manual resume"><i class="imgInit imgStop"></i> Full Stop</button></div>
+                <div><button type="button" data-type="manualcontrol" data-action="pauseschedule" class="btn" title="Temporary pause, schedule will resume at next change"><i class="imgInit imgPause"></i> Pause Schedule</button></div>
+                <div><button type="button" data-type="manualcontrol" data-action="pausesday" class="btn" title="Temporary pause, schedule will resume on next day"><i class="imgInit imgPause"></i> Pause Day</button></div>
+            </div>
+        </div>
+        <div class="playmanualsource">
+            <div>
+                <h4>Play Source</h4>
+                <select name="pPlayManualSource" id="pPlayManualSource" title="Select Manual Source"></select>
+            </div>
+            <div>
+                <div><button type="button" data-type="manualcontrol" data-action="source-stop" class="btn" title="Stop Schedule and Play Source"><i class="imgInit imgStop"></i> Stop</button></div>
+                <div><button type="button" data-type="manualcontrol" data-action="source-schedule" class="btn" title="Pause Schedule until next change and Play Source"><i class="imgInit imgPause"></i> Schedule</button></div>
+                <div><button type="button" data-type="manualcontrol" data-action="source-day" class="btn" title="Pause Schedule until the next day and Play Source"><i class="imgInit imgPause"></i> Day</button></div>
+            </div>
+        </div>
+        <div class="playmanualother">
+            <div>
+                <h4>Play Other</h4>
+            </div>
+            <div><input type="text" name="pPlayManualOtherUrl" id="pPlayManualOtherUrl" placeholder="Other Source Url" /></div>
+            <div><input type="text" name="pPlayManualOtherTitle" id="pPlayManualOtherTitle" placeholder="Other Source Title" /></div>
+            <div><input type="text" name="pPlayManualOtherImage" id="pPlayManualOtherImage" placeholder="Other Source Image" /></div>
+            <div>
+                <div><button type="button" data-type="manualcontrol" data-action="other-stop" class="btn" title="Stop Schedule and Play Other"><i class="imgInit imgStop"></i> Stop</button></div>
+                <div><button type="button" data-type="manualcontrol" data-action="other-schedule" class="btn" title="Pause Schedule until next change and Play Other"><i class="imgInit imgPause"></i> Schedule</button></div>
+                <div><button type="button" data-type="manualcontrol" data-action="other-day" class="btn" title="Pause Schedule until the next day and Play Other"><i class="imgInit imgPause"></i> Day</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
     $(document).ready(function() {
         timStatus_getData = window.setInterval(function() {
             status_getData();
         }, 10000);
-        timConfig_getData = window.setTimeout(function() {
-            config_getData();
-        }, 2000);
+        config_getData();
+        status_getData();
     });
 </script>

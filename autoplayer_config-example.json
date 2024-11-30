@@ -80,5 +80,14 @@
     "webapi": {
         "port": 8007,
         "ssl": false
+    },
+    "manual": {
+        "schedule": 0,
+        "day": 0,
+        "url": null,
+        "title": null,
+        "image": null,
+        "mode": 1,
+        "source": null
     }
 }

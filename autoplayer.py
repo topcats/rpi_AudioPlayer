@@ -135,6 +135,7 @@ while currentsourceid is not None:
     status_json['dt'] = int(time.time())
     status_json['mode'] = autoplayerfunc.Config_json['manual']['mode']
     status_json['currentsourceid'] = currentsourceid
+    status_json['currentotherurl'] = currentotherurl
     status_json['source'] = autoplayerfunc.fnGetSource(currentsourceid)
 
     if aPlayer:
@@ -178,26 +179,34 @@ while currentsourceid is not None:
     if status_json['mode'] == 1:
         # Full stop; play nothing, schedule paused
         fnPlayerActionStop()
+        currentsourceid = 0
+        currentotherurl = ''
 
     elif status_json['mode'] == 2:
         # Stop; play nothing, resume at next schedule change
         fnPlayerActionStop()
+        currentsourceid = 0
+        currentotherurl = ''
         if autoplayerfunc.Config_json['manual']['schedule'] != autoplayerfunc.fnGetCurrentSchedule():
             autoplayerfunc.fnSaveConfigSetMode(0)
 
     elif status_json['mode'] == 3:
         # Stop; play nothing, resume at next day
         fnPlayerActionStop()
+        currentsourceid = 0
+        currentotherurl = ''
         if autoplayerfunc.Config_json['manual']['day'] != autoplayerfunc.fnGetCurrentWeekday():
             autoplayerfunc.fnSaveConfigSetMode(0)
 
     elif status_json['mode'] == 11:
         # Play Source; schedule paused
+        currentotherurl = ''
         manualsourceid = autoplayerfunc.Config_json['manual']['source']
         fnPlayerActionPlaySource(manualsourceid)
 
     elif status_json['mode'] == 12:
         # Play Source; resume at next schedule change
+        currentotherurl = ''
         manualsourceid = autoplayerfunc.Config_json['manual']['source']
         fnPlayerActionPlaySource(manualsourceid)
         if autoplayerfunc.Config_json['manual']['schedule'] != autoplayerfunc.fnGetCurrentSchedule():
@@ -205,6 +214,7 @@ while currentsourceid is not None:
 
     elif status_json['mode'] == 13:
         # Play Source; resume at next day
+        currentotherurl = ''
         manualsourceid = autoplayerfunc.Config_json['manual']['source']
         fnPlayerActionPlaySource(manualsourceid)
         if autoplayerfunc.Config_json['manual']['day'] != autoplayerfunc.fnGetCurrentWeekday():
@@ -212,11 +222,13 @@ while currentsourceid is not None:
 
     elif status_json['mode'] == 21:
         # Play Url; schedule paused
+        currentsourceid = 0
         manualsourceurl = autoplayerfunc.Config_json['manual']['url']
         fnPlayerActionPlayOther(manualsourceurl)
 
     elif status_json['mode'] == 22:
         # Play Url; resume at next schedule change
+        currentsourceid = 0
         manualsourceurl = autoplayerfunc.Config_json['manual']['url']
         fnPlayerActionPlayOther(manualsourceurl)
         if autoplayerfunc.Config_json['manual']['schedule'] != autoplayerfunc.fnGetCurrentSchedule():
@@ -224,6 +236,7 @@ while currentsourceid is not None:
 
     elif status_json['mode'] == 23:
         # Play Url; resume at next day
+        currentsourceid = 0
         manualsourceurl = autoplayerfunc.Config_json['manual']['url']
         fnPlayerActionPlayOther(manualsourceurl)
         if autoplayerfunc.Config_json['manual']['day'] != autoplayerfunc.fnGetCurrentWeekday():
@@ -231,6 +244,7 @@ while currentsourceid is not None:
 
     else:
         # (Default) Normal running as per schedule
+        currentotherurl = ''
         newsourceid = autoplayerfunc.fnGetCurrentSchedule()
         fnPlayerActionPlaySource(newsourceid)
 

@@ -82,7 +82,7 @@ def fnPlayerActionPlaySource(newsourceid):
         newsource = autoplayerfunc.fnGetSource(newsourceid)
         if newsource is not None:
             print('{} New Source Station: {}'.format(time.strftime('%H:%M'), newsource['name']))
-            if str(newsource['url']).startswith("upnp"):
+            if str(newsource['url']).startswith("upnp") or str(newsource['url']).endswith("m3u") or str(newsource['url']).endswith("m3u8"):
                 aMedialist = aInstance.media_list_new([str(newsource['url'])])
                 aPlayerList.set_media_list(aMedialist)
                 aPlayerList.play()
@@ -105,7 +105,6 @@ def fnPlayerActionPlayOther(newsourceurl):
         if currentotherurl != '':
             print('{} New Other Station: {}'.format(time.strftime('%H:%M'), currentotherurl))
             if str(currentotherurl).startswith("upnp") or str(currentotherurl).endswith("m3u") or str(currentotherurl).endswith("m3u8"):
-                print('Playlist')
                 aMedialist = aInstance.media_list_new([str(currentotherurl)])
                 aPlayerList.set_media_list(aMedialist)
                 aPlayerList.play()

@@ -81,7 +81,7 @@ def fnPlayerActionPlaySource(newsourceid):
         currentsourceid = newsourceid
         newsource = autoplayerfunc.fnGetSource(newsourceid)
         if newsource is not None:
-            print('{} New Station: {}'.format(time.strftime('%H:%M'), newsource['name']))
+            print('{} New Source Station: {}'.format(time.strftime('%H:%M'), newsource['name']))
             if str(newsource['url']).startswith("upnp"):
                 aMedialist = aInstance.media_list_new([str(newsource['url'])])
                 aPlayerList.set_media_list(aMedialist)
@@ -103,8 +103,9 @@ def fnPlayerActionPlayOther(newsourceurl):
 
         currentotherurl = newsourceurl
         if currentotherurl != '':
-            print('{} New Station: {}'.format(time.strftime('%H:%M'), currentotherurl))
-            if str(currentotherurl).startswith("upnp"):
+            print('{} New Other Station: {}'.format(time.strftime('%H:%M'), currentotherurl))
+            if str(currentotherurl).startswith("upnp") or str(currentotherurl).endswith("m3u") or str(currentotherurl).endswith("m3u8"):
+                print('Playlist')
                 aMedialist = aInstance.media_list_new([str(currentotherurl)])
                 aPlayerList.set_media_list(aMedialist)
                 aPlayerList.play()
@@ -266,7 +267,7 @@ while currentsourceid is not None:
 
 
     #Let Play and snooze
-    time.sleep(20)
+    time.sleep(10)
 
     # See if need to reload config
     if (int(time.time()) - int(autoplayerfunc.Config_json['dt'])) > autoplayerfunc.Config_json['reloadtimeout']:

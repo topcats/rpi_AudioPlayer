@@ -225,7 +225,7 @@ function musicplayer_setAction() {
         } else if (datatype == 'manualplay') {
             datasid = $(this).data('sid');
             if (dataaction == 'source-play')
-                musicplayer_doAction(22, datasid, null, null, null);
+                musicplayer_doAction(12, datasid, null, null, null);
         } else {
             var sUrlPost = "/player/";
             if (dataaction == 'statusnext')

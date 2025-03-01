@@ -71,6 +71,8 @@ class WebConfigEditor():
         # print("WebHandler.__ProcessSchedule() ", post_command, json_post_data)
         if (post_command == 'PUT'):
             return self.__Schedules_Save(json_post_data)
+        elif (post_command == 'PATCH'):
+            return self.__Schedules_Move(json_post_data)
         elif (post_command == 'DELETE'):
             return self.__Schedules_Dele(json_post_data)
         else:
@@ -105,6 +107,27 @@ class WebConfigEditor():
             json_config['schedules'][json_post_data_sid]['stop'] = json_post_data['Stop']
             json_config['schedules'][json_post_data_sid]['source'] = int(json_post_data['Source'])
             retMessage = "Schedule Item Updated"
+
+        with open(_fileConfig, 'w') as fp:
+            json.dump(json_config, fp)
+
+        return True, retMessage
+
+
+    def __Schedules_Move(self, json_post_data):
+        """ Schedules - Move (Up or Down)"""
+        global _fileConfig
+        retMessage = "Issue"
+        with open(_fileConfig) as fp:
+            json_config = json.load(fp)
+
+        json_post_data_sid = int(json_post_data['sid'])
+        if (json_post_data_sid > 0):
+            # Move
+            olditem = json_config['schedules'][json_post_data_sid]
+            json_config['schedules'][json_post_data_sid] = json_config['schedules'][json_post_data_sid-1]
+            json_config['schedules'][json_post_data_sid-1] = olditem
+            retMessage = "Schedule Moved"
 
         with open(_fileConfig, 'w') as fp:
             json.dump(json_config, fp)

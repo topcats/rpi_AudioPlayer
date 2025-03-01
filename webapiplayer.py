@@ -74,6 +74,9 @@ class WebHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         self.do_POST()
 
+    def do_PATCH(self):
+        self.do_POST()
+
     def do_DELETE(self):
         self.do_POST()
 

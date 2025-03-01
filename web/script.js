@@ -425,12 +425,17 @@ function confedit_getSuccess(result) {
                     rowItem += "</td>";
                     rowItem += "<td>" + result['schedules'][i]['start'] + " - " + result['schedules'][i]['stop'] + "</td>";
                     rowItem += "<td>" + getSourceName(result['schedules'][i]['source']) + "</td>";
+                    if (i < (result.schedules.length-1)) {
+                        rowItem += "<th>" + "<button type=\"button\" data-type=\"schedule\" data-action=\"down\" data-sid=\"" + (parseInt(i) + 1) + "\" class=\"btn btn-sm\" title=\"Move Schedule Down\"><i class=\"imgInit imgEditDown\"></i></button>" + "</th>";
+                    } else {
+                        rowItem += "<th></th>";
+                    }
                     rowItem += "</tr>";
                     $('#pEditSchedule table tbody').append(rowItem);
                 }
             }
-            $("tr[data-action]").off("click").click(confedit_Action);
-            $("button[data-action]").off("click").click(confedit_Action);
+            $("tr[data-action]").off("click").on("click", confedit_Action);
+            $("button[data-action]").off("click").on("click", confedit_Action);
         }
     } catch (e) {
         console.log("confedit_getSuccess", e);
@@ -475,13 +480,22 @@ function confedit_Action() {
         var dataid = $(this).data('sid');
 
         if (datatype == "schedule") {
-            if (dataaction == "edit")
-                confedit_EditSchedule(dataid);
-            if (dataaction == "save")
-                confedit_EditScheduleSave();
-            if (dataaction == "close") {
-                confedit_EditScheduleClose();
-                confedit_getData();
+            self.event.preventDefault();
+            switch (dataaction) {
+                case "down":
+                    self.event.stopPropagation();
+                    confedit_EditSchedulePatch(dataid);
+                    break;
+                case "edit":
+                    confedit_EditSchedule(dataid);
+                    break;
+                case "save":
+                    confedit_EditScheduleSave();
+                    break;
+                case "close":
+                    confedit_EditScheduleClose();
+                    confedit_getData();
+                    break;
             }
         } else if (datatype == "source") {
             if (dataaction == "edit")
@@ -591,6 +605,34 @@ function confedit_EditScheduleSave() {
     }).fail(function (d) {
         console.log('confedit_EditScheduleSave fail');
         window.alert("Schedule Save Failed\n" + d);
+    });
+
+}
+
+function confedit_EditSchedulePatch(id) {
+
+    // Read Data
+    var dataObject = { 'sid': id, 'Action': 'down' };
+
+    // Post Data
+    $.ajax({
+        url: '/configeditor/Schedule/' + id,
+        type: 'patch',
+        data: JSON.stringify(dataObject),
+        headers: {
+            "Content-Type": "application/json"
+        },
+        dataType: 'json'
+    }).done(function (data) {
+        if (data['action'] == true) {
+            confedit_getData();
+        } else {
+            window.alert("Schedule Move Failed\n" + data['message']);
+            console.log("Sample of data:", data);
+        }
+    }).fail(function (d) {
+        console.log('confedit_EditSchedulePatch fail');
+        window.alert("Schedule Move Failed\n" + d);
     });
 
 }

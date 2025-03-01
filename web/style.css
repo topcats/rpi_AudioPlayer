@@ -423,6 +423,11 @@ h1 {
     width: 32px !important;
 }
 
+#pEditSchedule .btn-sm .imgInit::before {
+    height: 20px !important;
+    width: 20px !important;
+}
+
 #pEditScheduleEditor {
     z-index: 1000;
     width: 460px;
@@ -568,6 +573,13 @@ h1 {
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+.btn-sm {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+}
+
 .imgInit:hover,
 #pPlayManual button:hover .imgInit {
     background-color: #fc9c00;
@@ -605,6 +617,15 @@ h1 {
 
 .imgEdit::before {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M32.2061 6.02522C34.9033 3.32765 39.2767 3.32751 41.9741 6.02492C44.6713 8.7221 44.6715 13.095 41.9744 15.7924L39.7685 17.9985L30.0008 8.23078L32.2061 6.02522ZM28.2331 9.99865L8.03755 30.1967C7.27584 30.9585 6.73303 31.9111 6.46599 32.9547L4.03904 42.4398C3.9296 42.8675 4.05389 43.3212 4.36603 43.6334C4.67816 43.9456 5.13183 44.07 5.55956 43.9607L15.0458 41.5361C16.0904 41.2691 17.0439 40.726 17.8062 39.9635L38.0009 19.7664L28.2331 9.99865Z' fill='%23212121'/%3E%3C/svg%3E");
+}
+
+
+/* /ic_fluent_arrow_square_down_20_filled.svg */
+
+.imgEditDown::before {
+    height: 20px !important;
+    width: 20px !important;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 3C3.89543 3 3 3.89543 3 5V15C3 16.1046 3.89543 17 5 17H15C16.1046 17 17 16.1046 17 15V5C17 3.89543 16.1046 3 15 3H5ZM10.5 6.5V12.2929L13.1464 9.64645C13.3417 9.45118 13.6583 9.45118 13.8536 9.64645C14.0488 9.84171 14.0488 10.1583 13.8536 10.3536L10.3536 13.8536C10.1583 14.0488 9.84171 14.0488 9.64645 13.8536L6.14645 10.3536C5.95118 10.1583 5.95118 9.84171 6.14645 9.64645C6.34171 9.45118 6.65829 9.45118 6.85355 9.64645L9.5 12.2929V6.5C9.5 6.22386 9.72386 6 10 6C10.2761 6 10.5 6.22386 10.5 6.5Z' fill='%23212121'/%3E%3C/svg%3E");
 }
 
 

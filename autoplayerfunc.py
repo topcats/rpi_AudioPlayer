@@ -117,7 +117,7 @@ def fnGetSourceProgrammeTitle(sourceid):
     :return: Will return the lookup from system or empty string
     """
     _Source = fnGetSource(sourceid)
-    if (_Source is not None and 'programme' in _Source):
+    if (_Source is not None and 'programme' in _Source and _Source['programme'] is not None):
         try:
             if 'nextpvr' in _Source['programme']:
                 # Get Existing NextPvr SID

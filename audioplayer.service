@@ -1,0 +1,13 @@
+[Unit]
+Description=TheOwls Audio Player
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/pi/AudioPlayer/autoplayer.py
+Restart=on-abort
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target

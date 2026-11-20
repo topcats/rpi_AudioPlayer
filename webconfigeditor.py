@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+TheOwls Radio Audio Player
+Source: https://github.com/topcats/rpi_AudioPlayer
+"""
 from http.server import BaseHTTPRequestHandler
 import time
 import json

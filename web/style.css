@@ -214,6 +214,7 @@ h1 {
 
 #pPlayManual button {
     font-size: 100%;
+    letter-spacing: 3%;
     padding: 4px;
     min-width: 80px;
     vertical-align: middle;
@@ -224,6 +225,7 @@ h1 {
 }
 
 #pPlayManual button:hover {
+    letter-spacing: 0%;
     font-weight: bold;
 }
 
@@ -514,6 +516,82 @@ h1 {
 #pEditSourceEditor #pEditSourceEditorChannelID,
 #pEditSourceEditor #pEditSourceEditorProgrammeID {
     width: 100px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+    }
+
+    body {
+        background-color: #151a1e;
+        color: #e6edf3;
+    }
+
+    a {
+        color: #8ab4f8;
+    }
+
+    #pStatus>div,
+    #pEditSchedule>div {
+        background-color: #34311f;
+    }
+
+    #pSources>div,
+    #pEditSource>div {
+        background-color: #1f3038;
+    }
+
+    #pSources table tbody tr:hover {
+        background-color: #245b6b;
+    }
+
+    #pEditSource table thead th,
+    #pEditSource table thead td,
+    #pEditSchedule table thead th,
+    #pEditSchedule table thead td {
+        border-bottom-color: #59656d;
+    }
+
+    body #pEditSource table tbody tr:hover,
+    body #pEditSource .imgInit:hover {
+        background-color: #315778 !important;
+    }
+
+    body #pEditSchedule table tbody tr:hover,
+    body #pEditSchedule .imgInit:hover {
+        background-color: #72530c !important;
+    }
+
+    #pPlayManual,
+    #pEditScheduleEditor,
+    #pEditSourceEditor {
+        background-color: #20272d;
+        color: #e6edf3;
+    }
+
+    #pEditScheduleEditor table,
+    #pEditSourceEditor table {
+        color: #e6edf3;
+    }
+
+    .modelClose:hover,
+    .modelClose:focus {
+        color: #fff;
+    }
+
+    body button,
+    body input,
+    body select {
+        color: #e6edf3;
+        background-color: #252d33;
+        border-color: #59656d;
+    }
+
+    body .imgInit:hover,
+    body #pPlayManual button:hover .imgInit {
+        background-color: #9c5d00;
+    }
 }
 
 

@@ -231,7 +231,7 @@ class WebHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Content-type", "application/javascript")
         self.end_headers()
-        with open('web/jquery-3.5.1.min.js', 'rb') as file:
+        with open('web/jquery-3.8.0.min.js', 'rb') as file:
             self.wfile.write(file.read())
 
 
@@ -325,7 +325,7 @@ class WebHandler(BaseHTTPRequestHandler):
 
 
     def __WriteHtmlEnd(self):
-        self.wfile.write(bytes("<footer><div class=""container""><p>&copy; 2024 <a href=\"https://dev.the-owls.org\" target=\"_blank\" title=\"TheOwls Software Solutions\">TheOwls</a></p></div></footer>", "utf-8"))
+        self.wfile.write(bytes("<footer><div class=""container""><p>&copy; 2026 <a href=\"https://dev.the-owls.org\" target=\"_blank\" title=\"TheOwls Software Solutions\">TheOwls</a></p></div></footer>", "utf-8"))
         self.wfile.write(bytes("</body></html>", "utf-8"))
 
 

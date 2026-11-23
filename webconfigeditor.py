@@ -1,9 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+TheOwls Radio Audio Player
+Source: https://github.com/topcats/rpi_AudioPlayer
+"""
 from http.server import BaseHTTPRequestHandler
 import time
 import json
 from urllib import parse
 
 _fileConfig = 'autoplayer_config.json'
+
 
 class WebConfigEditor():
     #def __init__(self, *args):
@@ -12,12 +18,14 @@ class WebConfigEditor():
     _sourceTemplateUrlNextPvr = "http://{hostip}/live?channel={channel}&client={clientid}"
     _sourceTemplateImageNextPvr = "http://{hostip}/service?method=channel.icon&channel_id={programme}"
 
+
     def __GetPath(self, webself):
-        selfpath = webself.path.lower()
+        """Gets the Path from the Web Request"""
+        selfpath = webself.path.casefold()
         try:
             selfpath = selfpath[:selfpath.index('?')]
         except Exception as ex:
-            selfpath = webself.path.lower()
+            selfpath = webself.path.casefold()
 
         if selfpath.startswith('/configeditor'):
             selfpath = selfpath[13:]
@@ -38,20 +46,28 @@ class WebConfigEditor():
 
     def do_POST(self, webself: BaseHTTPRequestHandler):
         """Handles Web Server Posts"""
-        selfpath = self.__GetPath(webself)
-
-        content_length = int(webself.headers["Content-Length"])
-        post_data = webself.rfile.read(content_length)
-        json_data = json.loads(post_data)
 
         retValue = False
         retMessage = 'Nothing Done'
 
-        # Do Action
-        if selfpath.startswith('schedule'):
-            retValue, retMessage = self.__ProcessSchedule(webself.command.upper(), json_data)
-        elif selfpath.startswith('source'):
-            retValue, retMessage = self.__ProcessSource(webself.command.upper(), json_data)
+        try:
+            selfpath = self.__GetPath(webself)
+
+            content_length = int(webself.headers["Content-Length"])
+            post_data = webself.rfile.read(content_length)
+            json_data = json.loads(post_data)
+
+            # Do Action
+            webaction = webself.command.upper()
+            if selfpath.startswith('schedule'):
+                retValue, retMessage = self.__ProcessSchedule(webaction, json_data)
+            elif selfpath.startswith('source'):
+                retValue, retMessage = self.__ProcessSource(webaction, json_data)
+
+        except Exception as ex:
+            print("WebHandler.do_POST() ", ex)
+            retValue = False
+            retMessage = "Error Processing Request"
 
         # Return to browser
         returnjson = { "dt": int(time.time()), "action": retValue, "message": retMessage, "return": True}
@@ -63,11 +79,13 @@ class WebConfigEditor():
 
 
     def __Get_Menu(self, webself: BaseHTTPRequestHandler):
+        """ Get the Menu Page """
         with open('web/config-home.htm', 'rb') as file:
             webself.wfile.write(file.read())
 
 
     def __ProcessSchedule(self, post_command, json_post_data):
+        """ Schedules - Process Post """
         # print("WebHandler.__ProcessSchedule() ", post_command, json_post_data)
         if (post_command == 'PUT'):
             return self.__Schedules_Save(json_post_data)
@@ -80,7 +98,7 @@ class WebConfigEditor():
 
 
     def __Schedules_Save(self, json_post_data):
-        """ Schedules - Save (Add or Edit)"""
+        """ Schedules - Save (Add or Edit) """
         global _fileConfig
         retMessage = "Issue"
         with open(_fileConfig) as fp:
@@ -99,7 +117,7 @@ class WebConfigEditor():
             json_config['schedules'].append(newItem)
             retMessage = "Schedule Added"
         else:
-            #Edit
+            # Edit
             newItemDays = self.__Schedules_ProcessDay(json_post_data)
             json_post_data_sid = json_post_data_sid - 1
             json_config['schedules'][json_post_data_sid]['day'] = newItemDays
@@ -115,7 +133,7 @@ class WebConfigEditor():
 
 
     def __Schedules_Move(self, json_post_data):
-        """ Schedules - Move (Up or Down)"""
+        """ Schedules - Move (Up or Down) """
         global _fileConfig
         retMessage = "Issue"
         with open(_fileConfig) as fp:
@@ -136,7 +154,7 @@ class WebConfigEditor():
 
 
     def __Schedules_Dele(self, json_post_data):
-        """ Schedules - Delete"""
+        """ Schedules - Delete """
         global _fileConfig
         retMessage = "Issue"
         with open(_fileConfig) as fp:
@@ -156,7 +174,7 @@ class WebConfigEditor():
 
 
     def __Schedules_ProcessDay(self, json_post_data):
-        """ Schedules - Process Posted days into output"""
+        """ Schedules - Process Posted days into output """
         newItemDays = []
         if (json_post_data['Days']['0']):
             newItemDays.append(0)
@@ -177,6 +195,7 @@ class WebConfigEditor():
 
 
     def __ProcessSource(self, post_command, json_post_data):
+        """ Source - Process Post """
         # print("WebHandler.__ProcessSource() ", post_command, json_post_data)
         if (post_command == 'PUT'):
             return self.__Source_Save(json_post_data)
@@ -187,7 +206,7 @@ class WebConfigEditor():
 
 
     def __Source_Save(self, json_post_data):
-        """ Source - Save (Add or Edit)"""
+        """ Source - Save (Add or Edit) """
         global _fileConfig
         retMessage = "Issue"
         with open(_fileConfig) as fp:
@@ -198,7 +217,7 @@ class WebConfigEditor():
 
         json_post_data_sid = int(json_post_data['sid'])
         if (json_post_data_sid == 0):
-            #Add
+            # Add
             newItem = {
                 "name": json_post_data['Name'],
                 "url": None,
@@ -241,7 +260,7 @@ class WebConfigEditor():
             json_config['sources'].append(newItem)
             retMessage = "Source Added"
         else:
-            #Edit
+            # Edit
             for sourceitem in json_config['sources']:
                 if int(sourceitem['id']) == json_post_data_sid:
                     sourceitem['name'] = json_post_data['Name']
@@ -282,7 +301,7 @@ class WebConfigEditor():
 
 
     def __Source_Dele(self, json_post_data):
-        """ Source - Delete"""
+        """ Source - Delete """
         global _fileConfig
         retMessage = "Issue"
         with open(_fileConfig) as fp:

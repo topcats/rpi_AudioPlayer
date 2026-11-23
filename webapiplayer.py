@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+TheOwls Radio Audio Player
+Source: https://github.com/topcats/rpi_AudioPlayer
+"""
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 import ssl
 import time
@@ -21,11 +26,12 @@ class WebHandler(BaseHTTPRequestHandler):
 
     """Handles Web Server Requests"""
     def do_GET(self):
-        selfpath = self.path.lower()
+        selfpath = self.path.casefold()
         try:
             selfpath = selfpath[:selfpath.index('?')]
         except Exception as ex:
-            selfpath = self.path.lower()
+            selfpath = self.path.casefold()
+        
         if selfpath == '/status':
             self.__Get_Status()
         elif selfpath == '/config':
@@ -46,21 +52,21 @@ class WebHandler(BaseHTTPRequestHandler):
             self.__Post_PlayTrack()
         elif selfpath.startswith('/player/play/'):
             try:
-                sid = self.path.lower()[self.path.rindex('/')+1:]
+                sid = self.path.casefold()[self.path.rindex('/')+1:]
                 sid = sid[:sid.index('?')]
                 self.__Post_PlaySource(sid)
             except Exception as ex:
                 self.__Get_Catchment()
         elif selfpath.startswith('/configeditor'):
             self.__Get_ConfigEditor()
-        elif self.path.lower() == '/':
+        elif self.path.casefold() == '/':
             self.__Get_Home()
         else:
             self.__Get_Catchment()
 
     """Handles Web Server Posts"""
     def do_POST(self):
-        selfpath = self.path.lower()
+        selfpath = self.path.casefold()
 
         if selfpath.startswith('/configeditor'):
             self.__Post_ConfigEditor()
@@ -156,56 +162,64 @@ class WebHandler(BaseHTTPRequestHandler):
         retValue = False
         retMessage = 'Nothing Done'
 
-        with open(_fileConfig) as fp:
-            json_config = json.load(fp)
+        try:
+            with open(_fileConfig) as fp:
+                json_config = json.load(fp)
 
-        if not 'manual' in json_config:
-            json_config['manual'] = {}
-        if not 'mode' in json_config['manual']:
-            json_config['manual']['mode'] = 0
-        if not 'source' in json_config['manual']:
-            json_config['manual']['source'] = 0
-        if not 'url' in json_config['manual']:
-            json_config['manual']['url'] = None
-        if json_post_data['source'] == '':
-            json_post_data['source'] = None
-
-        if json_post_data['source'] is None or json_config['manual']['source'] != int(json_post_data['source']):
-            if json_post_data['source'] is None:
-                json_config['manual']['source'] = None
-            else:
-                json_config['manual']['source'] = int(json_post_data['source'])
-            retMessage = 'Source Updated'
-            retValue = True
-
-        if json_post_data['url'] is None or json_config['manual']['url'] != json_post_data['url']:
-            if json_post_data['url'] is None:
+            if not 'manual' in json_config:
+                json_config['manual'] = {}
+            if not 'mode' in json_config['manual']:
+                json_config['manual']['mode'] = 0
+            if not 'source' in json_config['manual']:
+                json_config['manual']['source'] = 0
+            if not 'url' in json_config['manual']:
                 json_config['manual']['url'] = None
-            else:
-                json_config['manual']['url'] = json_post_data['url']
-            json_config['manual']['title'] = json_post_data['title']
-            json_config['manual']['image'] = json_post_data['image']
-            retMessage = 'Other Updated'
-            retValue = True
+            if json_post_data['source'] == '':
+                json_post_data['source'] = None
 
-        if json_config['manual']['mode'] != int(json_post_data['mode']):
-            json_config['manual']['mode'] = int(json_post_data['mode'])
-            if retValue:
-                retMessage = retMessage + ', Mode Changed'
-            else:
-                retMessage = 'Mode Changed'
+            if json_post_data['source'] is None or json_config['manual']['source'] != int(json_post_data['source']):
+                if json_post_data['source'] is None:
+                    json_config['manual']['source'] = None
+                else:
+                    json_config['manual']['source'] = int(json_post_data['source'])
+                retMessage = 'Source Updated'
                 retValue = True
-        
-        if retValue:
-            json_config['manual']['day'] = autoplayerfunc.fnGetCurrentWeekday()
-            json_config['manual']['schedule'] = autoplayerfunc.fnGetCurrentSchedule()
 
-        with open(_fileConfig, 'w') as fp:
-            json.dump(json_config, fp, indent=4)
+            if json_post_data['url'] is None or json_config['manual']['url'] != json_post_data['url']:
+                if json_post_data['url'] is None:
+                    json_config['manual']['url'] = None
+                else:
+                    json_config['manual']['url'] = json_post_data['url']
+                json_config['manual']['title'] = json_post_data['title']
+                json_config['manual']['image'] = json_post_data['image']
+                retMessage = 'Other Updated'
+                retValue = True
 
+            if json_config['manual']['mode'] != int(json_post_data['mode']):
+                json_config['manual']['mode'] = int(json_post_data['mode'])
+                if retValue:
+                    retMessage = retMessage + ', Mode Changed'
+                else:
+                    retMessage = 'Mode Changed'
+                    retValue = True
+            
+            if retValue:
+                json_config['manual']['day'] = autoplayerfunc.fnGetCurrentWeekday()
+                json_config['manual']['schedule'] = autoplayerfunc.fnGetCurrentSchedule()
+
+            with open(_fileConfig, 'w') as fp:
+                json.dump(json_config, fp, indent=4)
+
+        except Exception as ex:
+            print("WebHandler.__Post_Control(Load JSON) ", ex)
+            retValue = False
+            retMessage = 'Error'
+
+        # Return json response
         returnjson = { "dt": int(time.time()), "action": retValue, "message": retMessage, "return": True}
         self.wfile.write(bytes(json.dumps(returnjson), "utf-8"))
 
+        # Callbacks to Autoplayer, if needed
         if retValue:
             self.ActionCallback('RELOADCONFIG')
 
@@ -231,7 +245,7 @@ class WebHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Content-type", "application/javascript")
         self.end_headers()
-        with open('web/jquery-3.5.1.min.js', 'rb') as file:
+        with open('web/jquery-3.8.0.min.js', 'rb') as file:
             self.wfile.write(file.read())
 
 
@@ -271,11 +285,9 @@ class WebHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.__WriteHtmlTop()
         self.wfile.write(bytes("<h2>Configuration Editor</h2>", "utf-8"))
-
         # Bounce out to config class
         oConfigEditor = WebConfigEditor()
         oConfigEditor.do_GET(self)
-
         self.__WriteHtmlEnd()
 
 
@@ -284,11 +296,9 @@ class WebHandler(BaseHTTPRequestHandler):
         self.__WriteSharedHeaders(False)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-
         # Bounce out to config class
         oConfigEditor = WebConfigEditor()
         retValue = oConfigEditor.do_POST(self)
-
         if (retValue):
             self.ActionCallback('RELOADCONFIG')
 
@@ -325,8 +335,9 @@ class WebHandler(BaseHTTPRequestHandler):
 
 
     def __WriteHtmlEnd(self):
-        self.wfile.write(bytes("<footer><div class=""container""><p>&copy; 2024 <a href=\"https://dev.the-owls.org\" target=\"_blank\" title=\"TheOwls Software Solutions\">TheOwls</a></p></div></footer>", "utf-8"))
+        self.wfile.write(bytes("<footer><div class=""container""><p>&copy; 2026 <a href=\"https://dev.the-owls.org\" target=\"_blank\" title=\"TheOwls Software Solutions\">TheOwls</a></p></div></footer>", "utf-8"))
         self.wfile.write(bytes("</body></html>", "utf-8"))
+
 
 
 class WebServer(Thread):

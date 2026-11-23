@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+TheOwls Radio Audio Player
+Source: https://github.com/topcats/rpi_AudioPlayer
+"""
 from urllib.request import urlopen,Request
 import json
 import os

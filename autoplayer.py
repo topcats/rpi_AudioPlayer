@@ -1,4 +1,9 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
+"""
+TheOwls Radio Audio Player
+Source: https://github.com/topcats/rpi_AudioPlayer
+"""
 import sys
 if sys.version_info[0] < 3:
     raise Exception("Python 3 or a more recent version is required.")
@@ -33,28 +38,32 @@ currentotherurl = ''
 
 
 def fnPlayerCallback(action):
+    """ Player Control - Callback from Web Server """
     print("fnPlayerCallback: " + action)
     global aPlayer
     global aPlayerList
-    if (action == "RELOADCONFIG"):
-        print('{} Reload Config Triggered'.format(time.strftime('%H:%M')))
-        autoplayerfunc.fnLoadConfig()
-    elif (action == "STOP"):
-        fnPlayerActionStop()
-    elif (action == "NEXT"):
-        if aPlayerList:
-            if aPlayerList.is_playing():
-                aPlayerList.next()
-    elif (action == "PLAY"):
-        if aPlayer:
-            if aPlayer.get_media() and aPlayer.is_playing():
-                aPlayer.play()
-        if aPlayerList:
-            if aPlayerList.is_playing():
-                aPlayerList.play()
-    else:
-        fnPlayerActionStop()
-        currentsourceid = int(action)
+    try:
+        if (action == "RELOADCONFIG"):
+            print('{} Reload Config Triggered'.format(time.strftime('%H:%M')))
+            autoplayerfunc.fnLoadConfig()
+        elif (action == "STOP"):
+            fnPlayerActionStop()
+        elif (action == "NEXT"):
+            if aPlayerList:
+                if aPlayerList.is_playing():
+                    aPlayerList.next()
+        elif (action == "PLAY"):
+            if aPlayer:
+                if aPlayer.get_media() and aPlayer.is_playing():
+                    aPlayer.play()
+            if aPlayerList:
+                if aPlayerList.is_playing():
+                    aPlayerList.play()
+        else:
+            fnPlayerActionStop()
+            currentsourceid = int(action)
+    except Exception as ex:
+        print("fnPlayerCallback Exception: " + str(ex))
 
 
 def fnPlayerActionStop():
@@ -64,13 +73,16 @@ def fnPlayerActionStop():
     if aPlayer:
         if aPlayer.get_media() and aPlayer.is_playing():
             aPlayer.stop()
+            return True
     if aPlayerList:
         if aPlayerList.is_playing():
             aPlayerList.stop()
+            return True
+    return False
 
 
 def fnPlayerActionPlaySource(newsourceid):
-    """ Player Control - Action play source id"""
+    """ Player Control - Action play source id """
     global currentsourceid
     global aPlayer
     global aPlayerList
@@ -90,10 +102,12 @@ def fnPlayerActionPlaySource(newsourceid):
                 aMedia = aInstance.media_new(str(newsource['url']))
                 aPlayer.set_media(aMedia)
                 aPlayer.play()
+            return True
+    return False
 
 
 def fnPlayerActionPlayOther(newsourceurl):
-    """ Player Control - Action play other source"""
+    """ Player Control - Action play other source """
     global currentotherurl
     global aPlayer
     global aPlayerList
@@ -112,6 +126,8 @@ def fnPlayerActionPlayOther(newsourceurl):
                 aMedia = aInstance.media_new(str(currentotherurl))
                 aPlayer.set_media(aMedia)
                 aPlayer.play()
+            return True
+    return False
 
 
 
@@ -127,118 +143,80 @@ oWebApp.start()
 time.sleep(1)
 
 
-
 # Play Control loop
 while currentsourceid is not None:
-    #Quick info
-    status_json = {}
-    status_json['dt'] = int(time.time())
-    status_json['mode'] = autoplayerfunc.Config_json['manual']['mode']
-    status_json['currentsourceid'] = currentsourceid
-    status_json['currentotherurl'] = currentotherurl
-    status_json['source'] = autoplayerfunc.fnGetSource(currentsourceid)
+    
+    # Get Config Mode
+    configmode = autoplayerfunc.Config_json['manual']['mode']
 
-    if aPlayer:
-        status_json['aPlayer'] = str(aPlayer.get_state())
-
-        status_json['playtime'] = autoplayerfunc.fnConvertPlaytime(aPlayer.get_time())
-        status_json['playlength'] = autoplayerfunc.fnConvertPlaytime(aPlayer.get_length())
-        aPlayerMedia = aPlayer.get_media()
-        if aPlayerMedia:
-            status_json['title'] = "{} - {}".format(aPlayerMedia.get_meta(0), aPlayerMedia.get_meta(1))
-            status_json['subtitle'] = autoplayerfunc.fnGetSourceProgrammeTitle(currentsourceid)
-            status_json['mrl'] = aPlayerMedia.get_mrl()
-            status_json['image'] = aPlayerMedia.get_meta(15)
-            #for i in range(36):
-            #    print("aPlayer Media     {} : {}".format(i, aPlayerMedia.get_meta(i)))
-
-    if aPlayerList:
-        status_json['aPlayerList'] = str(aPlayerList.get_state())
-        if aPlayerList.is_playing():
-            aPlayerListPlayer = aPlayerList.get_media_player()
-            if aPlayerListPlayer:
-                status_json['playtime'] = autoplayerfunc.fnConvertPlaytime(aPlayerListPlayer.get_time())
-                status_json['playlength'] = autoplayerfunc.fnConvertPlaytime(aPlayerListPlayer.get_length())
-                aPlayerListMedia = aPlayerListPlayer.get_media()
-                if aPlayerListMedia:
-                    status_json['title'] = "{} - {}".format(aPlayerListMedia.get_meta(0), aPlayerListMedia.get_meta(1))
-                    status_json['subtitle'] = autoplayerfunc.fnGetSourceProgrammeTitle(currentsourceid)
-                    status_json['mrl'] = aPlayerListMedia.get_mrl()
-                    status_json['image'] = aPlayerListMedia.get_meta(15)
-                    #for i in range(36):
-                    #    print("aPlayerListMedia Media     {} : {}".format(i, aPlayerListMedia.get_meta(i)))
-
-    try:
-        with open(_fileStatus, 'w') as fp:
-            json.dump(status_json, fp)
-    except Exception as ex:
-        print("subMain(Status Save) ", ex)
-
+    # Save Status to File
+    playchanged = False
+    configmode, status_playtime, status_playlength = autoplayerfunc.fnSaveStatus(configmode, currentsourceid, currentotherurl, aPlayer, aPlayerList)
 
     # Check Action
-    if status_json['mode'] == 1:
+    if configmode == 1:
         # Full stop; play nothing, schedule paused
-        fnPlayerActionStop()
+        playchanged = fnPlayerActionStop()
         currentsourceid = 0
         currentotherurl = ''
 
-    elif status_json['mode'] == 2:
+    elif configmode == 2:
         # Stop; play nothing, resume at next schedule change
-        fnPlayerActionStop()
+        playchanged = fnPlayerActionStop()
         currentsourceid = 0
         currentotherurl = ''
         if autoplayerfunc.Config_json['manual']['schedule'] != autoplayerfunc.fnGetCurrentSchedule():
             autoplayerfunc.fnSaveConfigSetMode(0)
 
-    elif status_json['mode'] == 3:
+    elif configmode == 3:
         # Stop; play nothing, resume at next day
-        fnPlayerActionStop()
+        playchanged = fnPlayerActionStop()
         currentsourceid = 0
         currentotherurl = ''
         if autoplayerfunc.Config_json['manual']['day'] != autoplayerfunc.fnGetCurrentWeekday():
             autoplayerfunc.fnSaveConfigSetMode(0)
 
-    elif status_json['mode'] == 11:
+    elif configmode == 11:
         # Play Source; schedule paused
         currentotherurl = ''
         manualsourceid = autoplayerfunc.Config_json['manual']['source']
-        fnPlayerActionPlaySource(manualsourceid)
+        playchanged = fnPlayerActionPlaySource(manualsourceid)
 
-    elif status_json['mode'] == 12:
+    elif configmode == 12:
         # Play Source; resume at next schedule change
         currentotherurl = ''
         manualsourceid = autoplayerfunc.Config_json['manual']['source']
-        fnPlayerActionPlaySource(manualsourceid)
+        playchanged = fnPlayerActionPlaySource(manualsourceid)
         if autoplayerfunc.Config_json['manual']['schedule'] != autoplayerfunc.fnGetCurrentSchedule():
             autoplayerfunc.fnSaveConfigSetMode(0)
 
-    elif status_json['mode'] == 13:
+    elif configmode == 13:
         # Play Source; resume at next day
         currentotherurl = ''
         manualsourceid = autoplayerfunc.Config_json['manual']['source']
-        fnPlayerActionPlaySource(manualsourceid)
+        playchanged = fnPlayerActionPlaySource(manualsourceid)
         if autoplayerfunc.Config_json['manual']['day'] != autoplayerfunc.fnGetCurrentWeekday():
             autoplayerfunc.fnSaveConfigSetMode(0)
 
-    elif status_json['mode'] == 21:
+    elif configmode == 21:
         # Play Url; schedule paused
         currentsourceid = 0
         manualsourceurl = autoplayerfunc.Config_json['manual']['url']
-        fnPlayerActionPlayOther(manualsourceurl)
+        playchanged = fnPlayerActionPlayOther(manualsourceurl)
 
-    elif status_json['mode'] == 22:
+    elif configmode == 22:
         # Play Url; resume at next schedule change
         currentsourceid = 0
         manualsourceurl = autoplayerfunc.Config_json['manual']['url']
-        fnPlayerActionPlayOther(manualsourceurl)
+        playchanged = fnPlayerActionPlayOther(manualsourceurl)
         if autoplayerfunc.Config_json['manual']['schedule'] != autoplayerfunc.fnGetCurrentSchedule():
             autoplayerfunc.fnSaveConfigSetMode(0)
 
-    elif status_json['mode'] == 23:
+    elif configmode == 23:
         # Play Url; resume at next day
         currentsourceid = 0
         manualsourceurl = autoplayerfunc.Config_json['manual']['url']
-        fnPlayerActionPlayOther(manualsourceurl)
+        playchanged = fnPlayerActionPlayOther(manualsourceurl)
         if autoplayerfunc.Config_json['manual']['day'] != autoplayerfunc.fnGetCurrentWeekday():
             autoplayerfunc.fnSaveConfigSetMode(0)
 
@@ -246,30 +224,33 @@ while currentsourceid is not None:
         # (Default) Normal running as per schedule
         currentotherurl = ''
         newsourceid = autoplayerfunc.fnGetCurrentSchedule()
-        fnPlayerActionPlaySource(newsourceid)
+        playchanged = fnPlayerActionPlaySource(newsourceid)
 
-        #Double Check is playing (if needed) (after waiting for it to start...)
+        # Double Check is playing (if needed) (after waiting for it to start...)
         time.sleep(10)
         if currentsourceid != 0:
             if (not aPlayer.is_playing() and not aPlayerList.is_playing()):
                 print('{} Not Playing'.format(time.strftime('%H:%M')))
                 currentsourceid = 0
             else:
-                if (aPlayerPlayTime > 0 and aPlayerPlayTime == status_json['playtime']):
+                if (aPlayerPlayTime > 0 and aPlayerPlayTime == status_playtime):
                     print('{} Not Playing, time sensor'.format(time.strftime('%H:%M')))
                     currentsourceid = 0
                     aPlayerPlayTime = 0
                 else:
-                    aPlayerPlayTime = status_json['playlength']
+                    aPlayerPlayTime = status_playlength
         else:
             fnPlayerActionStop()
 
+    # Quick Status update to file (if needed)
+    if (playchanged == True):
+        autoplayerfunc.fnSaveStatus(configmode, currentsourceid, currentotherurl, aPlayer, aPlayerList)
 
-    #Let Play and snooze
+
+    # Let Play and snooze
     time.sleep(10)
 
     # See if need to reload config
     if (int(time.time()) - int(autoplayerfunc.Config_json['dt'])) > autoplayerfunc.Config_json['reloadtimeout']:
         print('{} Reload Config'.format(time.strftime('%H:%M')))
         autoplayerfunc.fnLoadConfig()
-
